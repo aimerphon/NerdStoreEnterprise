@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NSE.Identidade.API.Models;
+using NSE.WebApi.Core.Controllers;
 using NSE.WebApi.Core.Identidade;
 using System;
 using System.Collections.Generic;
