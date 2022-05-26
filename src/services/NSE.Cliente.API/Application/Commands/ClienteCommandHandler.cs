@@ -32,7 +32,7 @@ namespace NSE.Clientes.API.Application.Commands
 
             _clienteRepository.Adicionar(cliente);
 
-            return message.ValidationResult;
+            return await PersistirDados(_clienteRepository.UnitOfWork);
         }
     }
-}
+} 
