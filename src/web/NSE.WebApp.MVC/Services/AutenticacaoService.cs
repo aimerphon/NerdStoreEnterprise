@@ -40,7 +40,7 @@ namespace NSE.WebApp.MVC.Services
 
             var response = await _httpClient.PostAsync("/api/identidade/nova-conta", registroContent);
 
-            if (TratarErrosResponse(response))
+            if (!TratarErrosResponse(response))
             {
                 return new UsuarioRespostaLogin
                 {
