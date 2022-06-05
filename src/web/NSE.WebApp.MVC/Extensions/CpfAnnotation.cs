@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Localization;
-//using NSE.Core.DomainObjects;
+using NSE.Core.DomainObjects;
 
 namespace NSE.WebApp.MVC.Extensions
 {
@@ -11,8 +11,7 @@ namespace NSE.WebApp.MVC.Extensions
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            //return Cpf.Validar(value.ToString()) ? ValidationResult.Success : new ValidationResult("CPF em formato inválido");
-            return ValidationResult.Success;
+            return Cpf.Validar(value.ToString()) ? ValidationResult.Success : new ValidationResult("CPF em formato inválido");
         }
     }
 

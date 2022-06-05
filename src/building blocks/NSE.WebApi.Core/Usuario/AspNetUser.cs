@@ -3,28 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace NSE.WebApp.MVC.Extensions
+namespace NSE.WebApi.Core.Usuario
 {
-    public interface IUser
-    {
-        string Name { get; }
 
-        Guid GetUserId();
-
-        string GetUserEmail();
-
-        string GetUserToken();
-
-        bool IsAuthenticated();
-
-        bool IsInRole(string role);
-
-        IEnumerable<Claim> GetClaims();
-
-        HttpContext GetHttpContext();
-    }
-
-    public class AspNetUser : IUser
+    public class AspNetUser : IAspNetUser
     {
         private readonly IHttpContextAccessor _accessor;
 
@@ -68,36 +50,6 @@ namespace NSE.WebApp.MVC.Extensions
         public bool IsAuthenticated()
         {
             return _accessor.HttpContext.User.Identity.IsAuthenticated;
-        }
-    }
-
-    public static class ClaimsPrincipalExtentions
-    {
-        public static string GetUserId(this ClaimsPrincipal principal)
-        {
-            if (principal == null)
-                throw new ArgumentException(nameof(principal));
-
-            var claim = principal.FindFirst("sub");
-            return claim?.Value;
-        }
-
-        public static string GetUserEmail(this ClaimsPrincipal principal)
-        {
-            if (principal == null)
-                throw new ArgumentException(nameof(principal));
-
-            var claim = principal.FindFirst("email");
-            return claim?.Value;
-        }
-
-        public static string GetUserToken(this ClaimsPrincipal principal)
-        {
-            if (principal == null)
-                throw new ArgumentException(nameof(principal));
-
-            var claim = principal.FindFirst("JWT");
-            return claim?.Value;
         }
     }
 }
