@@ -21,7 +21,7 @@ namespace NSE.WebApp.MVC.Controllers
         [Route("carrinho")]
         public async Task<ActionResult> Index()
         {
-            return View();
+            return View(await _carrinhoService.ObterCarrinho());
         }
 
         [HttpPost("carrinho/adicionar-item")]
@@ -56,7 +56,7 @@ namespace NSE.WebApp.MVC.Controllers
 
             var itemProduto = new ItemProdutoViewModel { ProdutoId = produtoId, Quantidade = quantidade };
 
-            var resposta = await _carrinhoService.AdicionarItemCarrinho(itemProduto);
+            var resposta = await _carrinhoService.AtualizarItemCarrinho(produtoId, itemProduto);
 
             if (ResponsePossuiErros(resposta)) return View("Index", await _carrinhoService.ObterCarrinho());
 
@@ -64,7 +64,7 @@ namespace NSE.WebApp.MVC.Controllers
         }
 
         [HttpPost("carrinho/remover-item")]
-        public async Task<ActionResult> AtualizarItemCarrinho(Guid produtoId)
+        public async Task<ActionResult> RemoverItemCarrinho(Guid produtoId)
         {
             var produto = await _catalogoService.ObterPorId(produtoId);
 
