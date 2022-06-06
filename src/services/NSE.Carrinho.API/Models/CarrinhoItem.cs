@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using System;
+using System.Text.Json.Serialization;
 
 namespace NSE.Carrinho.API.Models
 {
@@ -26,6 +27,7 @@ namespace NSE.Carrinho.API.Models
 
         public Guid CarrinhoId { get; set; }
 
+        [JsonIgnore]
         public CarrinhoCliente CarrinhoCliente { get; set; }
 
         internal void AssociarCarrinho(Guid carrinhoId)
@@ -43,14 +45,19 @@ namespace NSE.Carrinho.API.Models
             Quantidade += unidades;
         }
 
-        internal bool EhValido()
+        internal void AtualizarUnidades(int unidades)
         {
-            return new ItemPedidoValidation().Validate(this).IsValid;
+            Quantidade = unidades;
         }
 
-        public class ItemPedidoValidation : AbstractValidator<CarrinhoItem>
+        internal bool EhValido()
         {
-            public ItemPedidoValidation()
+            return new ItemCarrinhoValidation().Validate(this).IsValid;
+        }
+
+        public class ItemCarrinhoValidation : AbstractValidator<CarrinhoItem>
+        {
+            public ItemCarrinhoValidation()
             {
                 RuleFor(c => c.ProdutoId)
                     .NotEqual(Guid.Empty)
@@ -62,15 +69,15 @@ namespace NSE.Carrinho.API.Models
 
                 RuleFor(c => c.Quantidade)
                     .GreaterThan(0)
-                    .WithMessage("A quantidade minima de um item é 1");
+                    .WithMessage(item => $"A quantidade minima para o {item.Nome} é 1");
 
                 RuleFor(c => c.Quantidade)
-                    .LessThan(CarrinhoItem.MAX_QUANTIDADE_ITEM)
-                    .WithMessage($"A quantidade máxima de um item é {CarrinhoItem.MAX_QUANTIDADE_ITEM}");
+                    .LessThanOrEqualTo(CarrinhoItem.MAX_QUANTIDADE_ITEM)
+                    .WithMessage(item => $"A quantidade máxima do {item.Nome} é {CarrinhoItem.MAX_QUANTIDADE_ITEM}");
 
                 RuleFor(c => c.Valor)
                     .GreaterThan(0)
-                    .WithMessage("O valor do item precias ser maior que 0");
+                    .WithMessage(item => $"O valor do {item.Nome} precisa ser maior que 0");
             }
         }
     }
