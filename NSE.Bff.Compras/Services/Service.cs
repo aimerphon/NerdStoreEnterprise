@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using NSE.Core.Communication;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -39,6 +40,11 @@ namespace NSE.Bff.Compras.Services
         {
 
             return JsonSerializer.Deserialize<TRetorno>(await response.Content.ReadAsStringAsync(), _options);
+        }
+
+        protected ResponseResult RetornoOk()
+        {
+            return new ResponseResult();
         }
     }
 }
