@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NSE.WebApp.MVC.Services.Handlers
+namespace NSE.Bff.Compras.Extensions
 {
     public class HttpClientAuthorizationDelegatingHandler : DelegatingHandler
     {
