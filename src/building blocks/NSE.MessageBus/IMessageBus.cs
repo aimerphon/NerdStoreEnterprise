@@ -1,7 +1,7 @@
-﻿using EasyNetQ;
-using NSE.Core.Messages.Integration;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using EasyNetQ;
+using NSE.Core.Messages.Integration;
 
 namespace NSE.MessageBus
 {
@@ -16,7 +16,7 @@ namespace NSE.MessageBus
 
         void Subscribe<T>(string subscriptionId, Action<T> onMessage) where T : class;
 
-        void SubscribeAsync<T>(string subsctiptionId, Func<T, Task> message) where T : class;
+        void SubscribeAsync<T>(string subscriptionId, Func<T, Task> onMessage) where T : class;
 
         TResponse Request<TRequest, TResponse>(TRequest request)
             where TRequest : IntegrationEvent
@@ -33,6 +33,5 @@ namespace NSE.MessageBus
         IDisposable RespondAsync<TRequest, TResponse>(Func<TRequest, Task<TResponse>> responder)
             where TRequest : IntegrationEvent
             where TResponse : ResponseMessage;
-
     }
 }

@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Options;
-using NSE.WebApp.MVC.Extensions;
-using NSE.WebApp.MVC.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NSE.WebApp.MVC.Extensions;
+using NSE.WebApp.MVC.Models;
 
 namespace NSE.WebApp.MVC.Services
 {
@@ -26,16 +26,16 @@ namespace NSE.WebApp.MVC.Services
 
             TratarErrosResponse(response);
 
-            return await ObterRetorno<ProdutoViewModel>(response);
+            return await DeserializarObjetoResponse<ProdutoViewModel>(response);
         }
 
         public async Task<IEnumerable<ProdutoViewModel>> ObterTodos()
         {
-            var response = await _httpClient.GetAsync("/catalogo/produtos");
+            var response = await _httpClient.GetAsync("/catalogo/produtos/");
 
             TratarErrosResponse(response);
 
-            return await ObterRetorno<IEnumerable<ProdutoViewModel>>(response);
+            return await DeserializarObjetoResponse<IEnumerable<ProdutoViewModel>>(response);
         }
     }
 }

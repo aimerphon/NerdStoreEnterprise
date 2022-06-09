@@ -1,59 +1,54 @@
-﻿using NSE.Core.Communication;
-using NSE.WebApp.MVC.Extensions;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NSE.Core.Communication;
+using NSE.WebApp.MVC.Extensions;
+using NSE.WebApp.MVC.Models;
 
 namespace NSE.WebApp.MVC.Services
 {
     public abstract class Service
     {
-        private readonly JsonSerializerOptions _options;
-
-        protected Service()
-        {
-            _options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-        }
-
         protected StringContent ObterConteudo(object dado)
         {
             return new StringContent(
                 JsonSerializer.Serialize(dado),
                 Encoding.UTF8,
-                "application/json"
-                );
+                "application/json");
         }
 
-        protected bool TratarErrosResponse(HttpResponseMessage responseMessage)
+        protected async Task<T> DeserializarObjetoResponse<T>(HttpResponseMessage responseMessage)
         {
-            switch ((int)responseMessage.StatusCode)
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            return JsonSerializer.Deserialize<T>(await responseMessage.Content.ReadAsStringAsync(), options);
+        }
+
+        protected bool TratarErrosResponse(HttpResponseMessage response)
+        {
+            switch ((int)response.StatusCode)
             {
                 case 401:
                 case 403:
                 case 404:
                 case 500:
-                    throw new CustomHttpRequestException(responseMessage.StatusCode);
+                    throw new CustomHttpRequestException(response.StatusCode);
+
                 case 400:
                     return false;
             }
 
-            responseMessage.EnsureSuccessStatusCode();
-
+            response.EnsureSuccessStatusCode();
             return true;
         }
 
-        protected async Task<TRetorno> ObterRetorno<TRetorno>(HttpResponseMessage response)
+        protected ResponseResult RetornoOk()
         {
-            return JsonSerializer.Deserialize<TRetorno>(await response.Content.ReadAsStringAsync(), _options);
-        }
-
-        protected ResponseResult RetornarOk()
-        {
-            return new ResponseResult(); 
+            return new ResponseResult();
         }
     }
 }

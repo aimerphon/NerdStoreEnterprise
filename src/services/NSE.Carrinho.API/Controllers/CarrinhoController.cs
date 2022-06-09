@@ -86,12 +86,12 @@ namespace NSE.Carrinho.API.Controllers
         {
             return await _context.CarrinhoClientes
                 .Include(c => c.Itens)
-                .FirstOrDefaultAsync(c => c.ClienteId == _user.GetUserId());
+                .FirstOrDefaultAsync(c => c.ClienteId == _user.ObterUserId());
         }
 
         private void ManipularNovoCarrinho(CarrinhoItem carrinhoItem)
         {
-            var carrinhoCliente = new CarrinhoCliente(_user.GetUserId());
+            var carrinhoCliente = new CarrinhoCliente(_user.ObterUserId());
 
             carrinhoCliente.AdicionarItem(carrinhoItem);
 

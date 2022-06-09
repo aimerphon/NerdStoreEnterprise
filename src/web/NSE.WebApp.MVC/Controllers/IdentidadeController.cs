@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
-using NSE.WebApp.MVC.Models;
-using NSE.WebApp.MVC.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using NSE.WebApp.MVC.Models;
+using NSE.WebApp.MVC.Services;
 
 namespace NSE.WebApp.MVC.Controllers
 {
@@ -63,7 +63,7 @@ namespace NSE.WebApp.MVC.Controllers
 
             await RealizarLogin(resposta);
 
-            return RedirectToAction("Index", "Catalogo");
+            if (string.IsNullOrEmpty(returnUrl)) return RedirectToAction("Index", "Catalogo");
 
             return LocalRedirect(returnUrl);
         }
@@ -76,14 +76,16 @@ namespace NSE.WebApp.MVC.Controllers
             return RedirectToAction("Index", "Catalogo");
         }
 
-        private async Task RealizarLogin(UsuarioRespostaLogin usuarioRespostaLogin)
+        private async Task RealizarLogin(UsuarioRespostaLogin resposta)
         {
-            var token = ObterTokenFormatado(usuarioRespostaLogin.AccessToken);
+            var token = ObterTokenFormatado(resposta.AccessToken);
+
             var claims = new List<Claim>();
-            claims.Add(new Claim("JWT", usuarioRespostaLogin.AccessToken));
+            claims.Add(new Claim("JWT", resposta.AccessToken));
             claims.AddRange(token.Claims);
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
             var authProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60),

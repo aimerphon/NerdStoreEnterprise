@@ -8,7 +8,7 @@ namespace NSE.WebApp.MVC.Controllers
     {
         protected bool ResponsePossuiErros(ResponseResult resposta)
         {
-            if (resposta?.Errors?.Mensagens != null && resposta.Errors.Mensagens.Any())
+            if (resposta != null && resposta.Errors.Mensagens.Any())
             {
                 foreach (var mensagem in resposta.Errors.Mensagens)
                 {
@@ -21,9 +21,9 @@ namespace NSE.WebApp.MVC.Controllers
             return false;
         }
 
-        protected void AdicionarErroValidacao(string message)
+        protected void AdicionarErroValidacao(string mensagem)
         {
-            ModelState.AddModelError(string.Empty, message);
+            ModelState.AddModelError(string.Empty, mensagem);
         }
 
         protected bool OperacaoValida()

@@ -9,6 +9,8 @@ namespace NSE.WebApp.MVC
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IHostEnvironment hostEnvironment)
         {
             var builder = new ConfigurationBuilder()
@@ -25,11 +27,9 @@ namespace NSE.WebApp.MVC
             Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
-
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddIdentiyConfiguration();
+            services.AddIdentityConfiguration();
 
             services.AddMvcConfiguration(Configuration);
 
