@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using System;
 
-namespace NSE.Bff.Compras.Configuration.Configuration
+namespace NSE.Pedidos.API.Configuration
 {
     public static class SwaggerConfig
     {
@@ -11,9 +11,9 @@ namespace NSE.Bff.Compras.Configuration.Configuration
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo()
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "NerdStore Enterprise Compras BFF API Gateway",
+                    Title = "NerdStore Enterprise Pedido Api",
                     Description = "Esta API faz parte do curso ASP.NET Core Enterprise Applications.",
                     Contact = new OpenApiContact() { Name = "Eduardo Pires", Email = "contato@desenvolvedor.io" },
                     License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/licenses/MIT") }
@@ -40,10 +40,9 @@ namespace NSE.Bff.Compras.Configuration.Configuration
                                 Id = "Bearer"
                             }
                         },
-                        new string[] {}
+                        new string[]{ }
                     }
                 });
-
             });
         }
 
