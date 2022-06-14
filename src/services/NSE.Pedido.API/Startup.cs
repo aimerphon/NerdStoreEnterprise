@@ -30,7 +30,7 @@ namespace NSE.Pedidos.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApiConfiguration();
+            services.AddApiConfiguration(Configuration);
 
             services.AddJwtConfiguration(Configuration);
 
