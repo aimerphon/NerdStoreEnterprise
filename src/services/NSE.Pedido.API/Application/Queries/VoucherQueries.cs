@@ -24,7 +24,7 @@ namespace NSE.Pedidos.API.Application.Queries
 
             if (voucher == null) return null;
 
-            if (voucher.ValidarParaUtilizacao()) return null;
+            if (!voucher.ValidarParaUtilizacao()) return null;
 
             return new VoucherDTO
             {

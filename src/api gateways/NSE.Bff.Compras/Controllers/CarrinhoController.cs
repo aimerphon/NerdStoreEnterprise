@@ -102,7 +102,7 @@ namespace NSE.Bff.Compras.Controllers
                 return CustomResponse();
             }
 
-            var resposta = _carrinhoService.AplicarVoucherCarrinho(voucher);
+            var resposta = await _carrinhoService.AplicarVoucherCarrinho(voucher);
 
             return CustomResponse(resposta);
         }
