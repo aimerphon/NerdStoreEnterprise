@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NSE.Pedidos.API.Application.Queries;
-using NSE.Pedidos.API.DTO;
+using NSE.Pedidos.API.Application.DTO;
 using NSE.WebApi.Core.Controllers;
 using System.Net;
 using System.Threading.Tasks;

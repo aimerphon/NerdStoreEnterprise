@@ -1,4 +1,4 @@
-﻿namespace NSE.Pedidos.API.DTO
+﻿namespace NSE.Pedidos.API.Application.DTO
 {
     public class VoucherDTO
     {

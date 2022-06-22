@@ -1,4 +1,4 @@
-﻿using NSE.Pedidos.API.DTO;
+﻿using NSE.Pedidos.API.Application.DTO;
 using NSE.Pedidos.Domain.Vouchers;
 using System.Threading.Tasks;
 
