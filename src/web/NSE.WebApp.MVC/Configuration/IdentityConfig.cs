@@ -6,25 +6,20 @@ namespace NSE.WebApp.MVC.Configuration
 {
     public static class IdentityConfig
     {
-
-        public static IServiceCollection AddIdentiyConfiguration(this IServiceCollection services)
+        public static void AddIdentityConfiguration(this IServiceCollection services)
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
                     options.LoginPath = "/login";
-                    options.AccessDeniedPath = "/acesso-negado";
+                    options.AccessDeniedPath = "/erro/403";
                 });
-
-            return services;
         }
 
-        public static IApplicationBuilder UseIdentiyConfiguration(this IApplicationBuilder app)
+        public static void UseIdentityConfiguration(this IApplicationBuilder app)
         {
             app.UseAuthentication();
             app.UseAuthorization();
-
-            return app;
         }
     }
 }

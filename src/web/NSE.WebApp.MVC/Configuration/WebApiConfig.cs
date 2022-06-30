@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using NSE.WebApp.MVC.Extensions;
 using System.Globalization;
 
@@ -21,22 +20,27 @@ namespace NSE.WebApp.MVC.Configuration
         public static void UseMvcConfiguration(this IApplicationBuilder app,
             IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/erro/500");
-                app.UseStatusCodePagesWithRedirects("/erro/{0}");
-                app.UseHsts();
-            }
+            //TODO: Depois descomentar o código abaixo:
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/erro/500");
+            //    app.UseStatusCodePagesWithRedirects("/erro/{0}");
+            //    app.UseHsts();
+            //}
+            app.UseExceptionHandler("/erro/500");
+            app.UseStatusCodePagesWithRedirects("/erro/{0}");
+            app.UseHsts();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
-            app.UseIdentiyConfiguration();
+            app.UseIdentityConfiguration();
 
             var supportedCultures = new[] { new CultureInfo("pt-BR") };
             app.UseRequestLocalization(new RequestLocalizationOptions

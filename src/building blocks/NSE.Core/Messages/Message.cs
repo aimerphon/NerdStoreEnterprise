@@ -5,10 +5,9 @@ namespace NSE.Core.Messages
     public abstract class Message
     {
         public string MessageType { get; protected set; }
-
         public Guid AggregateId { get; protected set; }
 
-        public Message()
+        protected Message()
         {
             MessageType = GetType().Name;
         }

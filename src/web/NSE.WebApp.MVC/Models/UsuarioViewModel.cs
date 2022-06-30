@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using NSE.Core.Communication;
+using NSE.WebApp.MVC.Extensions;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using NSE.WebApp.MVC.Extensions;
 
 namespace NSE.WebApp.MVC.Models
 {
@@ -13,7 +14,7 @@ namespace NSE.WebApp.MVC.Models
 
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
         [DisplayName("CPF")]
-        //[Cpf]
+        [Cpf]
         public string Cpf { get; set; }
 
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
