@@ -10,6 +10,8 @@ namespace NSE.Carrinho.API
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IHostEnvironment hostEnvironment)
         {
             var builder = new ConfigurationBuilder()
@@ -26,8 +28,6 @@ namespace NSE.Carrinho.API
             Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApiConfiguration(Configuration);
@@ -36,7 +36,12 @@ namespace NSE.Carrinho.API
 
             services.AddSwaggerConfiguration();
 
+            //TODO: Verificar depois a inclusão da linha abaixo
+            //services.AddMediatR(typeof(Startup));
+
             services.RegisterServices();
+
+            services.AddMessageBusConfiguration(Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

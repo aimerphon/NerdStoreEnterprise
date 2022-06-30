@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Options;
-using NSE.WebApp.MVC.Extensions;
-using NSE.WebApp.MVC.Models;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NSE.Core.Communication;
+using NSE.WebApp.MVC.Extensions;
+using NSE.WebApp.MVC.Models;
 
 namespace NSE.WebApp.MVC.Services
 {
@@ -11,9 +12,11 @@ namespace NSE.WebApp.MVC.Services
     {
         private readonly HttpClient _httpClient;
 
-        public AutenticacaoService(HttpClient httpClient, IOptions<AppSettings> settings)
+        public AutenticacaoService(HttpClient httpClient, 
+                                   IOptions<AppSettings> settings)
         {
             httpClient.BaseAddress = new Uri(settings.Value.AutenticacaoUrl);
+
             _httpClient = httpClient;
         }
 
@@ -27,11 +30,11 @@ namespace NSE.WebApp.MVC.Services
             {
                 return new UsuarioRespostaLogin
                 {
-                    ResponseResult = await ObterRetorno<ResponseResult>(response)
+                    ResponseResult = await DeserializarObjetoResponse<ResponseResult>(response)
                 };
             }
 
-            return await ObterRetorno<UsuarioRespostaLogin>(response);
+            return await DeserializarObjetoResponse<UsuarioRespostaLogin>(response);
         }
 
         public async Task<UsuarioRespostaLogin> Registro(UsuarioRegistro usuarioRegistro)
@@ -44,11 +47,11 @@ namespace NSE.WebApp.MVC.Services
             {
                 return new UsuarioRespostaLogin
                 {
-                    ResponseResult = await ObterRetorno<ResponseResult>(response)
+                    ResponseResult = await DeserializarObjetoResponse<ResponseResult>(response)
                 };
             }
 
-            return await ObterRetorno<UsuarioRespostaLogin>(response);
+            return await DeserializarObjetoResponse<UsuarioRespostaLogin>(response);
         }
     }
 }

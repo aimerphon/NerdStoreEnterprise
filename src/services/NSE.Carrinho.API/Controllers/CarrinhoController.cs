@@ -82,16 +82,28 @@ namespace NSE.Carrinho.API.Controllers
             return await PersistirDados();
         }
 
+        [HttpPost("carrinho/aplicar-voucher")]
+        public async Task<IActionResult> AplicarVoucher(Voucher voucher)
+        {
+            var carrinho = await ObterCarrinho();
+
+            carrinho.AplicarVoucher(voucher);
+
+            _context.CarrinhoClientes.Update(carrinho);
+
+            return await PersistirDados();
+        }
+
         private async Task<CarrinhoCliente> ObterCarrinhoCliente()
         {
             return await _context.CarrinhoClientes
                 .Include(c => c.Itens)
-                .FirstOrDefaultAsync(c => c.ClienteId == _user.GetUserId());
+                .FirstOrDefaultAsync(c => c.ClienteId == _user.ObterUserId());
         }
 
         private void ManipularNovoCarrinho(CarrinhoItem carrinhoItem)
         {
-            var carrinhoCliente = new CarrinhoCliente(_user.GetUserId());
+            var carrinhoCliente = new CarrinhoCliente(_user.ObterUserId());
 
             carrinhoCliente.AdicionarItem(carrinhoItem);
 

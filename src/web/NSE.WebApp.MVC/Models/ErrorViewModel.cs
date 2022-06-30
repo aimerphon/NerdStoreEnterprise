@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace NSE.WebApp.MVC.Models
 {
     public class ErrorViewModel
@@ -9,19 +7,5 @@ namespace NSE.WebApp.MVC.Models
         public string Titulo { get; set; }
 
         public string Mensagem { get; set; }
-    }
-
-    public class ResponseResult
-    {
-        public string Title { get; set; }
-
-        public int Status { get; set; }
-
-        public ResponseErrorMessages Errors { get; set; } = new ResponseErrorMessages();
-    }
-
-    public class ResponseErrorMessages
-    {
-        public List<string> Mensagens { get; set; } = new List<string>();
     }
 }

@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace NSE.WebApi.Core.Usuario
 {
-
     public class AspNetUser : IAspNetUser
     {
         private readonly IHttpContextAccessor _accessor;
@@ -17,39 +16,39 @@ namespace NSE.WebApi.Core.Usuario
 
         public string Name => _accessor.HttpContext.User.Identity.Name;
 
-        public IEnumerable<Claim> GetClaims()
+        public Guid ObterUserId()
         {
-            return _accessor.HttpContext.User.Claims;
+            return EstaAutenticado() ? Guid.Parse(_accessor.HttpContext.User.GetUserId()) : Guid.Empty;
         }
 
-        public HttpContext GetHttpContext()
+        public string ObterUserEmail()
         {
-            return _accessor.HttpContext;
+            return EstaAutenticado() ? _accessor.HttpContext.User.GetUserEmail() : "";
         }
 
-        public string GetUserEmail()
+        public string ObterUserToken()
         {
-            return IsAuthenticated() ? _accessor.HttpContext.User.GetUserEmail() : string.Empty;
+            return EstaAutenticado() ? _accessor.HttpContext.User.GetUserToken() : "";
         }
 
-        public Guid GetUserId()
+        public bool EstaAutenticado()
         {
-            return IsAuthenticated() ? Guid.Parse(_accessor.HttpContext.User.GetUserId()) : Guid.Empty;
+            return _accessor.HttpContext.User.Identity.IsAuthenticated;
         }
 
-        public string GetUserToken()
-        {
-            return IsAuthenticated() ? _accessor.HttpContext.User.GetUserToken() : string.Empty;
-        }
-
-        public bool IsInRole(string role)
+        public bool PossuiRole(string role)
         {
             return _accessor.HttpContext.User.IsInRole(role);
         }
 
-        public bool IsAuthenticated()
+        public IEnumerable<Claim> ObterClaims()
         {
-            return _accessor.HttpContext.User.Identity.IsAuthenticated;
+            return _accessor.HttpContext.User.Claims;
+        }
+
+        public HttpContext ObterHttpContext()
+        {
+            return _accessor.HttpContext;
         }
     }
 }
