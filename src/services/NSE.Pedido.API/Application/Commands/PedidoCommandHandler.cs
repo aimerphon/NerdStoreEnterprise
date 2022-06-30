@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace NSE.Pedidos.API.Application.Commands
 {
-    public class PedidoCommandHandler : CommandHandler, 
+    public class PedidoCommandHandler : CommandHandler,
         IRequestHandler<AdicionarPedidoCommand, ValidationResult>
     {
         private readonly IVoucherRepository _voucherRepository;
         private readonly IPedidoRepository _pedidoRepository;
 
-        public PedidoCommandHandler(IVoucherRepository voucherRepository, 
+        public PedidoCommandHandler(IVoucherRepository voucherRepository,
             IPedidoRepository pedidoRepository)
         {
             _voucherRepository = voucherRepository;
@@ -58,7 +58,7 @@ namespace NSE.Pedidos.API.Application.Commands
         private Pedido MapearPedido(AdicionarPedidoCommand message)
         {
             var endereco = new Endereco
-            { 
+            {
                 Logradouro = message.Endereco.Logradouro,
                 Numero = message.Endereco.Numero,
                 Complemento = message.Endereco.Complemento,
@@ -68,8 +68,8 @@ namespace NSE.Pedidos.API.Application.Commands
                 Estado = message.Endereco.Estado
             };
 
-            var pedido = new Pedido(message.ClienteId, message.ValorTotal, 
-                message.PedidoItems.Select(PedidoItemDTO.ParaPedidoItem).ToList(), 
+            var pedido = new Pedido(message.ClienteId, message.ValorTotal,
+                message.PedidoItems.Select(PedidoItemDTO.ParaPedidoItem).ToList(),
                 message.VoucherUtilizado, message.Desconto);
 
             pedido.AtribuirEndereco(endereco);

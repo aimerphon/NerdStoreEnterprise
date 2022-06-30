@@ -18,7 +18,7 @@ namespace NSE.Pedidos.Infra.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Codigo = table.Column<int>(nullable: false, defaultValueSql: "NEXT VALUE FOR MinhaSequencia"),
+                    Codigo = table.Column<int>(nullable: false, defaultValueSql: "NEXT VALUE FOR nse.MinhaSequencia"),
                     ClienteId = table.Column<Guid>(nullable: false),
                     VoucherId = table.Column<Guid>(nullable: true),
                     VoucherUtilizado = table.Column<bool>(nullable: false),

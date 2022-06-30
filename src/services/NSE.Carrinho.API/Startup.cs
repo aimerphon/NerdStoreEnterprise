@@ -36,7 +36,12 @@ namespace NSE.Carrinho.API
 
             services.AddSwaggerConfiguration();
 
+            //TODO: Verificar depois a inclusão da linha abaixo
+            //services.AddMediatR(typeof(Startup));
+
             services.RegisterServices();
+
+            services.AddMessageBusConfiguration(Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

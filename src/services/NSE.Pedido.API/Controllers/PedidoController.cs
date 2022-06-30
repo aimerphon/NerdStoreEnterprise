@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NSE.Core.Mediator;
+using NSE.Pedidos.API.Application.Commands;
 using NSE.Pedidos.API.Application.Queries;
-using NSE.Pedidos.API.Application.DTO;
 using NSE.WebApi.Core.Controllers;
-using System.Net;
+using NSE.WebApi.Core.Usuario;
 using System.Threading.Tasks;
 
 namespace NSE.Pedidos.API.Controllers
@@ -11,23 +12,40 @@ namespace NSE.Pedidos.API.Controllers
     [Authorize]
     public class PedidoController : MainController
     {
-        private readonly IVoucherQueries _voucherQueries;
+        private readonly IMediatorHandler _mediator;
+        private readonly IAspNetUser _user;
+        private readonly IPedidoQueries _pedidoQueries;
 
-        public PedidoController(IVoucherQueries voucherQueries)
+        public PedidoController(IMediatorHandler mediator,
+            IAspNetUser user,
+            IPedidoQueries pedidoQueries)
         {
-            _voucherQueries = voucherQueries;
+            _mediator = mediator;
+            _user = user;
+            _pedidoQueries = pedidoQueries;
         }
 
-        [HttpGet("voucher/{codigo}")]
-        [ProducesResponseType(typeof(VoucherDTO), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> ObterPorCodigo(string codigo)
+        [HttpPost("pedido")]
+        public async Task<IActionResult> AdicionarPedido(AdicionarPedidoCommand pedido)
         {
-            if (string.IsNullOrEmpty(codigo)) return NotFound();
+            pedido.ClienteId = _user.ObterUserId();
+            return CustomResponse(await _mediator.EnviarComando(pedido));
+        }
 
-            var voucher = await _voucherQueries.ObterVoucherPorCodigo(codigo);
+        [HttpGet("pedido/ultimo")]
+        public async Task<IActionResult> UltimoPedido()
+        {
+            var pedido = await _pedidoQueries.ObterUltimoPedido(_user.ObterUserId());
 
-            return voucher == null ? NotFound() : CustomResponse(voucher);
+            return pedido == null ? NotFound() : CustomResponse(pedido);
+        }
+
+        [HttpGet("pedido/lista-cliente")]
+        public async Task<IActionResult> ListaPorCliente()
+        {
+            var pedidos = await _pedidoQueries.ObterListaPorClienteId(_user.ObterUserId());
+
+            return pedidos == null ? NotFound() : CustomResponse(pedidos);
         }
     }
 }
