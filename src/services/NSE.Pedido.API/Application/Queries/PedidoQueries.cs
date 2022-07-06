@@ -26,8 +26,8 @@ namespace NSE.Pedidos.API.Application.Queries
 
         public async Task<PedidoDTO> ObterUltimoPedido(Guid clienteId)
         {
-            var dataInicio = DateTime.Now.AddMinutes(-3);
-            var dataFim = DateTime.Now;
+            var dataInicio = DateTime.Now.AddMinutes(-5);
+            var dataFim = DateTime.Now.AddMinutes(1);
 
             const string sql = @"SELECT
                                 P.ID AS 'ProdutoId', P.CODIGO, P.VOUCHERUTILIZADO, P.DESCONTO, P.VALORTOTAL,P.PEDIDOSTATUS,
@@ -41,7 +41,7 @@ namespace NSE.Pedidos.API.Application.Queries
                                 ORDER BY P.DATACADASTRO DESC";
 
             var pedido = await _pedidoRepository.ObterConexao()
-                .QueryAsync<dynamic>(sql, new { clienteId, dataInicio, dataFim });
+                .QueryAsync<dynamic>(sql, new { clienteId , dataInicio, dataFim });
 
             return MapearPedido(pedido);
         }
@@ -58,42 +58,51 @@ namespace NSE.Pedidos.API.Application.Queries
             const string sql = @"SELECT TOP 1
                                  P.ID as 'PedidoId', P.ID, P.CLIENTEID,
                                  PI.ID as 'PedidoItemId', PI.ID, PI.PRODUTOID, PI.QUANTIDADE
-                                 FROM nse.PEDIDOS
-                                 INNER JOIN nse.PEDIDOITEMS PI ON P.ID = PI.PEDIDDOID
+                                 FROM nse.PEDIDOS P
+                                 INNER JOIN nse.PEDIDOITEMS PI ON P.ID = PI.PEDIDOID
                                  WHERE P.PEDIDOSTATUS = 1
                                  ORDER BY P.DATACADASTRO";
 
-            var pedido = await _pedidoRepository.ObterConexao().QueryAsync<PedidoDTO, PedidoItemDTO, PedidoDTO>(sql, (p, pi) =>
-            {
-                p.PedidoItems = new List<PedidoItemDTO>();
-                p.PedidoItems.Add(pi);
+            // Utilizacao do lookup para manter o estado a cada ciclo de registro retornado
+            var lookup = new Dictionary<Guid, PedidoDTO>();
 
-                return p;
-            }, splitOn: "PedidoId,PedidoItemId");
+            await _pedidoRepository.ObterConexao().QueryAsync<PedidoDTO, PedidoItemDTO, PedidoDTO>(sql,
+                (p, pi) =>
+                {
+                    if (!lookup.TryGetValue(p.Id, out var pedidoDTO))
+                        lookup.Add(p.Id, pedidoDTO = p);
 
-            return pedido.FirstOrDefault();
+                    pedidoDTO.PedidoItems ??= new List<PedidoItemDTO>();
+                    pedidoDTO.PedidoItems.Add(pi);
+
+                    return pedidoDTO;
+
+                }, splitOn: "PedidoId,PedidoItemId");
+
+            // Obtendo dados o lookup
+            return lookup.Values.OrderBy(p => p.Data).FirstOrDefault();
         }
 
         private PedidoDTO MapearPedido(dynamic result)
         {
             var pedido = new PedidoDTO
             {
-                Codigo = result[0].CODIGO,
-                Status = result[0].PEDIDOSTATUS,
-                ValorTotal = result[0].VALORTOTAL,
-                Desconto = result[0].DESCONTO,
-                VoucherUtilizado = result[0].VOUCHERUTILIZADO,
+                Codigo = result?.First()?.CODIGO,
+                Status = result?.First()?.PEDIDOSTATUS,
+                ValorTotal = result?.First()?.VALORTOTAL,
+                Desconto = result?.First()?.DESCONTO,
+                VoucherUtilizado = result?.First()?.VOUCHERUTILIZADO,
 
                 PedidoItems = new List<PedidoItemDTO>(),
                 Endereco = new EnderecoDTO
                 {
-                    Logradouro = result[0].LOGRADOURO,
-                    Bairro = result[0].BAIRRO,
-                    Cep = result[0].CEP,
-                    Cidade = result[0].CIDADE,
-                    Complemento = result[0].COMPLEMENTO,
-                    Estado = result[0].ESTADO,
-                    Numero = result[0].NUMERO
+                    Logradouro = result?.First()?.LOGRADOURO,
+                    Bairro = result?.First()?.BAIRRO,
+                    Cep = result?.First()?.CEP,
+                    Cidade = result?.First()?.CIDADE,
+                    Complemento = result?.First()?.COMPLEMENTO,
+                    Estado = result?.First()?.ESTADO,
+                    Numero = result?.First()?.NUMERO
                 }
             };
 

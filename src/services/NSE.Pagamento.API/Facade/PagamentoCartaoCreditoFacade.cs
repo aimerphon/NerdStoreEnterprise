@@ -17,7 +17,7 @@ namespace NSE.Pagamentos.API.Facade
 
         public async Task<Transacao> AutorizarPagamento(Pagamento pagamento)
         {
-            var nerdsPagSvc = new NerdsPagService(_pagamentoConfig.DefaultApiKey, 
+            var nerdsPagSvc = new NerdsPagService(_pagamentoConfig.DefaultApiKey,
                 _pagamentoConfig.DefaultEncryptionKey);
 
             var cardHashGen = new CardHash(nerdsPagSvc)
@@ -27,7 +27,6 @@ namespace NSE.Pagamentos.API.Facade
                 CardExpirationDate = pagamento.CartaoCredito.MesAnoVencimento,
                 CardCvv = pagamento.CartaoCredito.CVV
             };
-
             var cardHash = cardHashGen.Generate();
 
             var transacao = new Transaction(nerdsPagSvc)
@@ -42,6 +41,26 @@ namespace NSE.Pagamentos.API.Facade
             };
 
             return ParaTransacao(await transacao.AuthorizeCardTransaction());
+        }
+
+        public async Task<Transacao> CapturarPagamento(Transacao transacao)
+        {
+            var nerdsPagSvc = new NerdsPagService(_pagamentoConfig.DefaultApiKey,
+                _pagamentoConfig.DefaultEncryptionKey);
+
+            var transaction = ParaTransaction(transacao, nerdsPagSvc);
+
+            return ParaTransacao(await transaction.CaptureCardTransaction());
+        }
+
+        public async Task<Transacao> CancelarAutorizacao(Transacao transacao)
+        {
+            var nerdsPagSvc = new NerdsPagService(_pagamentoConfig.DefaultApiKey,
+                _pagamentoConfig.DefaultEncryptionKey);
+
+            var transaction = ParaTransaction(transacao, nerdsPagSvc);
+
+            return ParaTransacao(await transaction.CancelAuthorization());
         }
 
         public static Transacao ParaTransacao(Transaction transaction)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NSE.Catalogo.API.Models;
 using NSE.Core.DomainObjects;
 using NSE.Core.Messages.Integration;
@@ -79,6 +80,8 @@ namespace NSE.Catalogo.API.Services
 
                 var pedidoBaixado = new PedidoBaixadoEstoqueIntegrationEvent(message.ClienteId, message.PedidoId);
                 await _bus.PublishAsync(pedidoBaixado);
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<CatalogoIntegrationHandler>>();
+                logger.LogInformation("Método BaixarEstoque executado com sucesso");
             }
         }
 

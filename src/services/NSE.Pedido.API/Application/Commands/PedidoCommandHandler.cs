@@ -17,11 +17,13 @@ namespace NSE.Pedidos.API.Application.Commands
     public class PedidoCommandHandler : CommandHandler,
         IRequestHandler<AdicionarPedidoCommand, ValidationResult>
     {
-        private readonly IVoucherRepository _voucherRepository;
         private readonly IPedidoRepository _pedidoRepository;
+        private readonly IVoucherRepository _voucherRepository;
         private readonly IMessageBus _bus;
+
         public PedidoCommandHandler(IVoucherRepository voucherRepository,
-            IPedidoRepository pedidoRepository, IMessageBus bus)
+                                    IPedidoRepository pedidoRepository,
+                                    IMessageBus bus)
         {
             _voucherRepository = voucherRepository;
             _pedidoRepository = pedidoRepository;
@@ -30,31 +32,31 @@ namespace NSE.Pedidos.API.Application.Commands
 
         public async Task<ValidationResult> Handle(AdicionarPedidoCommand message, CancellationToken cancellationToken)
         {
-            //Validação do comando
+            // Validação do comando
             if (!message.EhValido()) return message.ValidationResult;
 
-            //Mapear pedido
+            // Mapear Pedido
             var pedido = MapearPedido(message);
 
-            //Aplicar voucher se houver
+            // Aplicar voucher se houver
             if (!await AplicarVoucher(message, pedido)) return ValidationResult;
 
-            //Validar pedido
+            // Validar pedido
             if (!ValidarPedido(pedido)) return ValidationResult;
 
-            //Processar pagamento
+            // Processar pagamento
             if (!await ProcessarPagamento(pedido, message)) return ValidationResult;
 
-            //Se pagamento tudo ok!
+            // Se pagamento tudo ok!
             pedido.AutorizarPedido();
 
-            //Adicionar Evento
+            // Adicionar Evento
             pedido.AdicionarEvento(new PedidoRealizadoEvent(pedido.Id, pedido.ClienteId));
 
-            //Adicionar pedido repositorio
+            // Adicionar Pedido Repositorio
             _pedidoRepository.Adicionar(pedido);
 
-            //Persistir dados do pedido e voucher
+            // Persistir dados de pedido e voucher
             return await PersistirDados(_pedidoRepository.UnitOfWork);
         }
 
@@ -71,12 +73,10 @@ namespace NSE.Pedidos.API.Application.Commands
                 Estado = message.Endereco.Estado
             };
 
-            var pedido = new Pedido(message.ClienteId, message.ValorTotal,
-                message.PedidoItems.Select(PedidoItemDTO.ParaPedidoItem).ToList(),
+            var pedido = new Pedido(message.ClienteId, message.ValorTotal, message.PedidoItems.Select(PedidoItemDTO.ParaPedidoItem).ToList(),
                 message.VoucherUtilizado, message.Desconto);
 
             pedido.AtribuirEndereco(endereco);
-
             return pedido;
         }
 
@@ -87,7 +87,7 @@ namespace NSE.Pedidos.API.Application.Commands
             var voucher = await _voucherRepository.ObterPorCodigo(message.VoucherCodigo);
             if (voucher == null)
             {
-                AdicionarErro("O voucher informado não existe");
+                AdicionarErro("O voucher informado não existe!");
                 return false;
             }
 
@@ -109,7 +109,7 @@ namespace NSE.Pedidos.API.Application.Commands
         private bool ValidarPedido(Pedido pedido)
         {
             var pedidoValorOriginal = pedido.ValorTotal;
-            var pedidoDescontoOriginal = pedido.Desconto;
+            var pedidoDesconto = pedido.Desconto;
 
             pedido.CalcularValorPedido();
 
@@ -119,7 +119,7 @@ namespace NSE.Pedidos.API.Application.Commands
                 return false;
             }
 
-            if (pedido.Desconto != pedidoDescontoOriginal)
+            if (pedido.Desconto != pedidoDesconto)
             {
                 AdicionarErro("O valor total não confere com o cálculo do pedido");
                 return false;
@@ -128,22 +128,22 @@ namespace NSE.Pedidos.API.Application.Commands
             return true;
         }
 
-        private async Task<bool> ProcessarPagamento(Pedido pedido, AdicionarPedidoCommand message)
+        public async Task<bool> ProcessarPagamento(Pedido pedido, AdicionarPedidoCommand message)
         {
             var pedidoIniciado = new PedidoIniciadoIntegrationEvent
             {
                 PedidoId = pedido.Id,
                 ClienteId = pedido.ClienteId,
                 Valor = pedido.ValorTotal,
-                TipoPagamento = 1,
+                TipoPagamento = 1, // fixo. Alterar se tiver mais tipos
                 NomeCartao = message.NomeCartao,
                 NumeroCartao = message.NumeroCartao,
                 MesAnoVencimento = message.ExpiracaoCartao,
                 CVV = message.CvvCartao
             };
 
-            var result = await _bus.
-                RequestAsync<PedidoIniciadoIntegrationEvent, ResponseMessage>(pedidoIniciado);
+            var result = await _bus
+                .RequestAsync<PedidoIniciadoIntegrationEvent, ResponseMessage>(pedidoIniciado);
 
             if (result.ValidationResult.IsValid) return true;
 

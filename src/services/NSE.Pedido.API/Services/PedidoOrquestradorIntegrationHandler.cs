@@ -17,7 +17,7 @@ namespace NSE.Pedidos.API.Services
         private readonly ILogger<PedidoOrquestradorIntegrationHandler> _logger;
         private Timer _timer;
 
-        public PedidoOrquestradorIntegrationHandler(ILogger<PedidoOrquestradorIntegrationHandler> logger, 
+        public PedidoOrquestradorIntegrationHandler(ILogger<PedidoOrquestradorIntegrationHandler> logger,
             IServiceProvider serviceProvider)
         {
             _logger = logger;
@@ -28,19 +28,18 @@ namespace NSE.Pedidos.API.Services
         {
             _logger.LogInformation("Serviço de pedidos iniciado.");
 
-            _timer = new Timer(ProcessarPedidos, null, TimeSpan.Zero, TimeSpan.FromSeconds(15));
+            _timer = new Timer(ProcessarPedidos, null, TimeSpan.Zero,
+                TimeSpan.FromSeconds(15));
 
             return Task.CompletedTask;
         }
 
         private async void ProcessarPedidos(object state)
         {
-            _logger.LogInformation("Processando pedidos.");
-
             using (var scope = _serviceProvider.CreateScope())
             {
-                var pedidosQueries = scope.ServiceProvider.GetRequiredService<IPedidoQueries>();
-                var pedido = await pedidosQueries.ObterPedidosAutorizados();
+                var pedidoQueries = scope.ServiceProvider.GetRequiredService<IPedidoQueries>();
+                var pedido = await pedidoQueries.ObterPedidosAutorizados();
 
                 if (pedido == null) return;
 
@@ -51,7 +50,7 @@ namespace NSE.Pedidos.API.Services
 
                 await bus.PublishAsync(pedidoAutorizado);
 
-                _logger.LogInformation($"O pedido ID:{pedido.Id} foi encaminhado para baixa no estoque.");
+                _logger.LogInformation($"Pedido ID: {pedido.Id} foi encaminhado para baixa no estoque.");
             }
         }
 
