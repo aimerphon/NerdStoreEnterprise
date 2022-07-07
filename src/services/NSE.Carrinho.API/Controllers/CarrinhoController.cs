@@ -31,7 +31,7 @@ namespace NSE.Carrinho.API.Controllers
         }
 
         [HttpPost("carrinho")]
-        public async Task<ActionResult> AdicionarItemCarrinho(CarrinhoItem carrinhoItem)
+        public async Task<IActionResult> AdicionarItemCarrinho(CarrinhoItem carrinhoItem)
         {
             var carrinho = await ObterCarrinhoCliente();
 
@@ -46,7 +46,7 @@ namespace NSE.Carrinho.API.Controllers
         }
 
         [HttpPut("carrinho/{produtoId:guid}")]
-        public async Task<ActionResult> AtualizarItemCarrinho(Guid produtoId, CarrinhoItem carrinhoItem)
+        public async Task<IActionResult> AtualizarItemCarrinho(Guid produtoId, CarrinhoItem carrinhoItem)
         {
             var carrinho = await ObterCarrinhoCliente();
             var itemCarrinho = await ObterItemCarrinhoValidado(produtoId, carrinho, carrinhoItem);
@@ -64,7 +64,7 @@ namespace NSE.Carrinho.API.Controllers
         }
 
         [HttpDelete("carrinho/{produtoId:guid}")]
-        public async Task<ActionResult> RemoverItemCarrinho(Guid produtoId)
+        public async Task<IActionResult> RemoverItemCarrinho(Guid produtoId)
         {
             var carrinho = await ObterCarrinhoCliente();
             var itemCarrinho = await ObterItemCarrinhoValidado(produtoId, carrinho);
@@ -159,7 +159,7 @@ namespace NSE.Carrinho.API.Controllers
             return itemCarrinho;
         }
 
-        private async Task<ActionResult> PersistirDados()
+        private async Task<IActionResult> PersistirDados()
         {
             var result = await _context.SaveChangesAsync();
             if (result <= 0) AdicionarErroProcessamento("Não foi possível persistir os dados no banco");

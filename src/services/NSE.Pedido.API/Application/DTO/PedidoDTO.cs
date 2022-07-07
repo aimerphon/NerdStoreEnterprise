@@ -1,6 +1,6 @@
-﻿using NSE.Pedidos.Domain.Pedidos;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using NSE.Pedidos.Domain.Pedidos;
 
 namespace NSE.Pedidos.API.Application.DTO
 {
@@ -9,6 +9,7 @@ namespace NSE.Pedidos.API.Application.DTO
         public Guid Id { get; set; }
         public int Codigo { get; set; }
 
+        public Guid ClienteId { get; set; }
         public int Status { get; set; }
         public DateTime Data { get; set; }
         public decimal ValorTotal { get; set; }
@@ -31,7 +32,8 @@ namespace NSE.Pedidos.API.Application.DTO
                 ValorTotal = pedido.ValorTotal,
                 Desconto = pedido.Desconto,
                 VoucherUtilizado = pedido.VoucherUtilizado,
-                PedidoItems = new List<PedidoItemDTO>()
+                PedidoItems = new List<PedidoItemDTO>(),
+                Endereco = new EnderecoDTO()
             };
 
             foreach (var item in pedido.PedidoItems)
@@ -55,7 +57,7 @@ namespace NSE.Pedidos.API.Application.DTO
                 Bairro = pedido.Endereco.Bairro,
                 Cep = pedido.Endereco.Cep,
                 Cidade = pedido.Endereco.Cidade,
-                Estado = pedido.Endereco.Estado
+                Estado = pedido.Endereco.Estado,
             };
 
             return pedidoDTO;

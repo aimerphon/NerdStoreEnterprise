@@ -12,6 +12,7 @@ namespace NSE.Pedidos.API.Application.Queries
     {
         Task<PedidoDTO> ObterUltimoPedido(Guid clienteId);
         Task<IEnumerable<PedidoDTO>> ObterListaPorClienteId(Guid clienteId);
+        Task<PedidoDTO> ObterPedidosAutorizados();
     }
 
     public class PedidoQueries : IPedidoQueries
@@ -25,9 +26,6 @@ namespace NSE.Pedidos.API.Application.Queries
 
         public async Task<PedidoDTO> ObterUltimoPedido(Guid clienteId)
         {
-            var dataInicio = DateTime.Now.AddMinutes(-3);
-            var dataFim = DateTime.Now;
-
             const string sql = @"SELECT
                                 P.ID AS 'ProdutoId', P.CODIGO, P.VOUCHERUTILIZADO, P.DESCONTO, P.VALORTOTAL,P.PEDIDOSTATUS,
                                 P.LOGRADOURO,P.NUMERO, P.BAIRRO, P.Endereco_Cep CEP, P.COMPLEMENTO, P.CIDADE, P.ESTADO,
@@ -35,12 +33,11 @@ namespace NSE.Pedidos.API.Application.Queries
                                 FROM NSE.PEDIDOS P 
                                 INNER JOIN NSE.PEDIDOITEMS PIT ON P.ID = PIT.PEDIDOID 
                                 WHERE P.CLIENTEID = @clienteId 
-                                AND P.DATACADASTRO between @dataInicio and @dataFim
                                 AND P.PEDIDOSTATUS = 1 
                                 ORDER BY P.DATACADASTRO DESC";
 
             var pedido = await _pedidoRepository.ObterConexao()
-                .QueryAsync<dynamic>(sql, new { clienteId, dataInicio, dataFim });
+                .QueryAsync<dynamic>(sql, new { clienteId });
 
             return MapearPedido(pedido);
         }
@@ -50,6 +47,36 @@ namespace NSE.Pedidos.API.Application.Queries
             var pedidos = await _pedidoRepository.ObterListaPorClienteId(clienteId);
 
             return pedidos.Select(PedidoDTO.ParaPedidoDTO);
+        }
+
+        public async Task<PedidoDTO> ObterPedidosAutorizados()
+        {
+            const string sql = @"SELECT
+                                 P.ID as 'PedidoId', P.ID, P.CLIENTEID,
+                                 PI.ID as 'PedidoItemId', PI.ID, PI.PRODUTOID, PI.QUANTIDADE
+                                 FROM nse.PEDIDOS P
+                                 INNER JOIN nse.PEDIDOITEMS PI ON P.ID = PI.PEDIDOID
+                                 WHERE P.PEDIDOSTATUS = 1
+                                 ORDER BY P.DATACADASTRO";
+
+            // Utilizacao do lookup para manter o estado a cada ciclo de registro retornado
+            var lookup = new Dictionary<Guid, PedidoDTO>();
+
+            await _pedidoRepository.ObterConexao().QueryAsync<PedidoDTO, PedidoItemDTO, PedidoDTO>(sql,
+                (p, pi) =>
+                {
+                    if (!lookup.TryGetValue(p.Id, out var pedidoDTO))
+                        lookup.Add(p.Id, pedidoDTO = p);
+
+                    pedidoDTO.PedidoItems ??= new List<PedidoItemDTO>();
+                    pedidoDTO.PedidoItems.Add(pi);
+
+                    return pedidoDTO;
+
+                }, splitOn: "PedidoId,PedidoItemId");
+
+            // Obtendo dados o lookup
+            return lookup.Values.OrderBy(p => p.Data).FirstOrDefault();
         }
 
         private PedidoDTO MapearPedido(dynamic result)
