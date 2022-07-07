@@ -26,9 +26,6 @@ namespace NSE.Pedidos.API.Application.Queries
 
         public async Task<PedidoDTO> ObterUltimoPedido(Guid clienteId)
         {
-            var dataInicio = DateTime.Now.AddMinutes(-5);
-            var dataFim = DateTime.Now.AddMinutes(1);
-
             const string sql = @"SELECT
                                 P.ID AS 'ProdutoId', P.CODIGO, P.VOUCHERUTILIZADO, P.DESCONTO, P.VALORTOTAL,P.PEDIDOSTATUS,
                                 P.LOGRADOURO,P.NUMERO, P.BAIRRO, P.Endereco_Cep CEP, P.COMPLEMENTO, P.CIDADE, P.ESTADO,
@@ -36,12 +33,11 @@ namespace NSE.Pedidos.API.Application.Queries
                                 FROM NSE.PEDIDOS P 
                                 INNER JOIN NSE.PEDIDOITEMS PIT ON P.ID = PIT.PEDIDOID 
                                 WHERE P.CLIENTEID = @clienteId 
-                                AND P.DATACADASTRO between @dataInicio and @dataFim
                                 AND P.PEDIDOSTATUS = 1 
                                 ORDER BY P.DATACADASTRO DESC";
 
             var pedido = await _pedidoRepository.ObterConexao()
-                .QueryAsync<dynamic>(sql, new { clienteId , dataInicio, dataFim });
+                .QueryAsync<dynamic>(sql, new { clienteId });
 
             return MapearPedido(pedido);
         }
@@ -55,7 +51,7 @@ namespace NSE.Pedidos.API.Application.Queries
 
         public async Task<PedidoDTO> ObterPedidosAutorizados()
         {
-            const string sql = @"SELECT TOP 1
+            const string sql = @"SELECT
                                  P.ID as 'PedidoId', P.ID, P.CLIENTEID,
                                  PI.ID as 'PedidoItemId', PI.ID, PI.PRODUTOID, PI.QUANTIDADE
                                  FROM nse.PEDIDOS P
@@ -87,22 +83,22 @@ namespace NSE.Pedidos.API.Application.Queries
         {
             var pedido = new PedidoDTO
             {
-                Codigo = result?.First()?.CODIGO,
-                Status = result?.First()?.PEDIDOSTATUS,
-                ValorTotal = result?.First()?.VALORTOTAL,
-                Desconto = result?.First()?.DESCONTO,
-                VoucherUtilizado = result?.First()?.VOUCHERUTILIZADO,
+                Codigo = result[0].CODIGO,
+                Status = result[0].PEDIDOSTATUS,
+                ValorTotal = result[0].VALORTOTAL,
+                Desconto = result[0].DESCONTO,
+                VoucherUtilizado = result[0].VOUCHERUTILIZADO,
 
                 PedidoItems = new List<PedidoItemDTO>(),
                 Endereco = new EnderecoDTO
                 {
-                    Logradouro = result?.First()?.LOGRADOURO,
-                    Bairro = result?.First()?.BAIRRO,
-                    Cep = result?.First()?.CEP,
-                    Cidade = result?.First()?.CIDADE,
-                    Complemento = result?.First()?.COMPLEMENTO,
-                    Estado = result?.First()?.ESTADO,
-                    Numero = result?.First()?.NUMERO
+                    Logradouro = result[0].LOGRADOURO,
+                    Bairro = result[0].BAIRRO,
+                    Cep = result[0].CEP,
+                    Cidade = result[0].CIDADE,
+                    Complemento = result[0].COMPLEMENTO,
+                    Estado = result[0].ESTADO,
+                    Numero = result[0].NUMERO
                 }
             };
 
